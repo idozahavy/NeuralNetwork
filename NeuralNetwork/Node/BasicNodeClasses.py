@@ -2,7 +2,7 @@ import math
 from abc import ABCMeta, abstractmethod, ABC
 from random import random
 
-from NeuralNetwork.Node.NodeMath import SigmoidFrom0To1
+from NeuralNetwork.Node.NodeMath import Sigmoid
 
 
 class NodeName:
@@ -40,9 +40,9 @@ class Node(ABC):
     name: NodeName
 
     @abstractmethod
-    def __init__(self, activation=None, name: NodeName = None):
+    def __init__(self, activation=None):
         self.activation = activation
-        self.name = name
+        self.name = None
 
     @abstractmethod
     def GetActivation(self) -> float:
@@ -56,21 +56,18 @@ class Node(ABC):
             return self.name == other.name
 
 
-class CalculatingNode(Node):
+class InputLinkedNode(Node):
     input_links: list
     bias: float
 
     @abstractmethod
-    def __init__(self, input_links: list = None, bias: float = None):
-        super(CalculatingNode, self).__init__()
-        self.input_links = input_links
-        if not self.input_links:
-            self.input_links = []
+    def __init__(self, bias: float = None):
+        super(InputLinkedNode, self).__init__(activation=math.nan)
+        self.input_links = []
         if bias:
             self.bias = bias
         else:
             self.bias = (2*random()-1)
-        self.activation = math.nan
 
     def GetActivation(self, save: bool = False, recalculate: bool = False):
         if not recalculate and math.isfinite(self.activation):
@@ -79,8 +76,14 @@ class CalculatingNode(Node):
         activation = self.bias
         for input_link in self.input_links:
             input_link: NodeLink
-            activation += input_link.GetLinkActivation()
-        activation = SigmoidFrom0To1(activation)
+
+            if isinstance(input_link.input_node, InputLinkedNode):  # 0.017
+                activation += input_link.factor * input_link.input_node.GetActivation(save=save, recalculate=recalculate)
+            else:
+                activation += input_link.factor * input_link.input_node.GetActivation()
+            # activation += input_link.GetLinkActivation(save=save, recalculate=recalculate)  # 0.021
+
+        activation = Sigmoid(activation)
         if save:
             self.activation = activation
         return activation
@@ -88,22 +91,59 @@ class CalculatingNode(Node):
     def ResetActivation(self):
         self.activation = math.nan
 
+    def AddInputLink(self, link):
+        if not self.input_links:
+            self.input_links = []
+        if link not in self.input_links:
+            self.input_links.append(link)
+        else:
+            raise Exception(f"Tried adding input link '{link}' to InputLinkedNode '{str(self.name)}' that already exist")
+
+
+class OutputLinkedNode(Node):
+    output_links: list
+
+    @abstractmethod
+    def __init__(self, activation: float = None):
+        super(OutputLinkedNode, self).__init__(activation=activation)
+        self.output_links = []
+
+    def GetActivation(self):
+        if "Input" not in str(self.name.node_type):
+            print("fuck me - error 101")
+
+        if not math.isfinite(self.activation):
+            raise Exception(f"OutputLinkedNode named '{self.name}' do not have any activation set")
+        return self.activation
+
+    def SetActivation(self, activation):
+        self.activation = activation
+
+    def AddOutputLink(self, link):
+        if not self.output_links:
+            self.output_links = []
+        if link not in self.output_links:
+            self.output_links.append(link)
+        else:
+            raise Exception(f"Tried adding output link '{link}' to OutputLinkedNode '{str(self.name)}' that already exist")
+
 
 class NodeLink:
     input_node: Node
     output_node: Node
-    factor = None
+    factor: float
 
-    def __init__(self, input_node, output_node, factor=None):
+    def __init__(self, input_node, output_node, factor: float = None):
         self.input_node = input_node
         self.output_node = output_node
-        if factor:
+        if factor is not None:
             self.factor = factor
         else:
             self.factor = (2*random()-1)
 
     def GetLinkActivation(self, save: bool = False, recalculate: bool = False):
-        if isinstance(self.input_node, CalculatingNode):
+        if isinstance(self.input_node, InputLinkedNode):
             return self.factor * self.input_node.GetActivation(save=save, recalculate=recalculate)
-        return self.factor * self.input_node.GetActivation()
+        else:
+            return self.factor * self.input_node.GetActivation()
 

@@ -1,8 +1,8 @@
-from NeuralNetwork.Node.BasicNodeClasses import CalculatingNode, NodeName
+from NeuralNetwork.Node.BasicNodeClasses import NodeName, InputLinkedNode
 
 
-class OutputNode(CalculatingNode):
+class OutputNode(InputLinkedNode):
 
-    def __init__(self, input_links: list = None, bias: float = None, node_number: int = None):
-        super(OutputNode, self).__init__(input_links=input_links, bias=bias)
-        self.name = NodeName(OutputNode, node_number=node_number)
+    def __init__(self, bias: float = None, node_number: int = None):
+        super(OutputNode, self).__init__(bias=bias)
+        self.name = NodeName(OutputNode, node_number, layer=None)

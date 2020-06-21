@@ -21,7 +21,7 @@ class Layer:
             return None
         current_output = []
         for node in self.node_list:
-            node_result = node.GetOutput(input_list)
+            node_result = node.GetOutputs(input_list)
             current_output.append(node_result)
         return current_output
 

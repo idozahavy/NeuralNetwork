@@ -1,9 +1,14 @@
 import math
 
 import sympy
+import numpy
 
 
-def SigmoidFrom0To1(a) -> float:
+def Sigmoid(a) -> float:
+    if a > 230:
+        return 1
+    if a < -230:
+        return 0
     return 1/(1+math.exp(-a))
 
 
