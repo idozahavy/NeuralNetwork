@@ -2,7 +2,21 @@ import time
 
 from AILostCause.BetterNode import Node
 
+starting_nodes = [Node() for _ in range(784)]
+for strt in starting_nodes:
+    strt.SetActivation(1)
+hidden1 = [Node(input_nodes=starting_nodes) for _ in range(16)]
+hidden2 = [Node(input_nodes=hidden1) for _ in range(16)]
+output_nodes = [Node(input_nodes=hidden2) for _ in range(10)]
+
 start_time = time.time()
+for _ in range(1):
+    for output in output_nodes:
+        a = output.CalcActivation()
+print(time.time() - start_time)
+
+exit()
+
 
 start1 = Node()
 start1.SetActivation(0)
