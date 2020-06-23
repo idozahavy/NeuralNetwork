@@ -12,3 +12,11 @@ def Sigmoid(a) -> float:
 def SigmoidDerivative(value):
     return value * (1 - value)  # works
     # return Sigmoid(value) * (1 - Sigmoid(value))
+
+
+def Softplus(value):
+    return math.log(1 + math.exp(value))
+
+
+def SoftplusDerivative(value):
+    return value / (1 + value)

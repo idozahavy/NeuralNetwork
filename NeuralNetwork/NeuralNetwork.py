@@ -225,6 +225,27 @@ class NeuralNetwork:
                 link.factor += (2*random()-1) * variation
             node.bias += (2*random()-1) * variation
 
+    def GetRandomizedBest(self, input_list: list, desired_output_list: list, variation: float, tries: int):
+        best_loss = self.GetLoss(input_list, desired_output_list)
+        best_child = None
+        for _ in range(tries):
+            child = copy.deepcopy(self)
+            child.MutateRandom(variation)
+            loss = child.GetLoss(input_list, desired_output_list)
+            if loss < best_loss:
+                best_child = child
+                best_loss = loss
+
+        if not best_child:
+            return copy.deepcopy(self)
+        return best_child
+
+    def MakeChild(self, other_parent):
+        other_parent: NeuralNetwork
+        # TODO make a child that inherits values from each parent and random select between these values
+        # Evolutionary Algorithm
+        pass
+
     def ResetCosts(self):
         for node in self.node_dictionary.values():
             if isinstance(node, InputLinkedNode):
