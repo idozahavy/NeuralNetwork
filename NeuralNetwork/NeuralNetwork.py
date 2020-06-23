@@ -23,8 +23,8 @@ class NeuralNetwork:
     hidden_nodes: list
     node_dictionary: dict
 
-    def __init__(self, input_count, output_count, hidden_layer_count,
-                 hidden_layer_nodes_count):  # 0.127 secs once for (784, 10, 2, 16)
+    def __init__(self, input_count: int, output_count: int, hidden_layer_count: int,
+                 hidden_layer_nodes_count: int):  # 0.127 secs once for (784, 10, 2, 16)
 
         self.input_nodes = []
         self.output_nodes = []
@@ -113,13 +113,13 @@ class NeuralNetwork:
             hidden_node: HiddenNode
             hidden_node.ResetActivation()
 
-    def GetLoss(self, inputs, desired_outputs):
-        self.SetInputs(inputs)
+    def GetLoss(self, input_list: list, desired_output_list: list):
+        self.SetInputs(input_list)
         total_loss = 0
         index = 0
         for output in self.output_nodes:
             output: InputLinkedNode
-            total_loss += (output.GetActivation(save=True, recalculate=False) - desired_outputs[index]) ** 2
+            total_loss += (output.GetActivation(save=True, recalculate=False) - desired_output_list[index]) ** 2
             index += 1
         return total_loss / len(self.output_nodes)
 
@@ -138,7 +138,7 @@ class NeuralNetwork:
             cost_output_der = (desired_outputs[output_index] - output.GetActivation(save=True, recalculate=False))  # d(Cost)/d(Output)
             cost_value_der = cost_output_der * output_value_der
             output.cost_value_der = cost_value_der
-            output.cost_bias_der = 1 * cost_value_der  # d(Value)/d(Bias) = 1
+            output.cost_bias_der = cost_value_der  # d(Value)/d(Bias) = 1
             output_index += 1
 
     def _HiddenCosts(self):
@@ -164,6 +164,7 @@ class NeuralNetwork:
                 cost_output_1_der = link.output_node.cost_value_der * value_output_1_der  # d(Cost)/d(Output(-1))
                 output_1_value_1_der = SigmoidDerivative(SigmoidDerivative(node.GetActivation(save=True, recalculate=False)))  # d(Output(-1))/d(Value(-1))
                 cost_value_1_der = cost_output_1_der * output_1_value_1_der
+
                 node.cost_value_der += cost_value_1_der
 
                 node.cost_bias_der += link.output_node.cost_value_der
@@ -187,7 +188,7 @@ class NeuralNetwork:
                 node.bias -= node.cost_bias_der * coefficient
         self.ResetCosts()
 
-    def MutateRandom(self, variation):
+    def MutateRandom(self, variation: float):
         for node in self.hidden_nodes and self.output_nodes:
             node: InputLinkedNode
             for link in node.input_links:
