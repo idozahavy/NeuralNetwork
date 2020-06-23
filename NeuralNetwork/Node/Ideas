@@ -1,0 +1,20 @@
+Self Learning
+from the situation(input_nodes) the neural will make a decision to act on something which will make a new situation
+the neural network will take an emotion to the new situation
+the emotion is the cost function (good emotion = low cost , bad emotion = big cost)
+reacts to the new situation and so on
+
+>>>>>>>Reinforcement Learning
+making the neural better only by the cost at the end of the situation
+scoring the outcome of the neural decisions to make the cost efficient
+
+>>>>>>>Gene expression programming - https://en.wikipedia.org/wiki/Gene_expression_programming
+
+>>>Simulated annealing - https://en.wikipedia.org/wiki/Simulated_annealing
+
+>>>Particle swarm optimization - https://en.wikipedia.org/wiki/Particle_swarm_optimization
+
+>>Long short-term memory - https://en.wikipedia.org/wiki/Long_short-term_memory#Idea
+
+> Mutation Shake - if experiencing the vanishing gradient problem,
+make the values shake a bit and then backpropagate again
