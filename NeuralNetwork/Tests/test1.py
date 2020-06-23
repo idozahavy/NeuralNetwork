@@ -44,11 +44,11 @@ for _ in range(1):
         # h = net.GetHiddenNode(0, 1)  # 0
         # print(h)
 
-        net.CalculateCosts(inputs, [1 for i in range(10)])
+        net.CalculateSlopeValues(inputs, [1 for i in range(10)])
 
         # a = SigmoidDerivative(inputs.pop())
         pass
-    net.MutateCosts()
+    net.MutateSlopeValues()
     print("Mutated")
 print(time.time()-timer)
 

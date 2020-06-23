@@ -123,25 +123,52 @@ class NeuralNetwork:
             index += 1
         return total_loss / len(self.output_nodes)
 
-    def CalculateCosts(self, inputs: list, desired_outputs: list):  # 0.034 once for (784, 10, 2, 16)
-        self.GetOutputs(inputs)
+    def CalculateSlopeValuesFromCost(self, input_list: list, cost: float):
+        """
+        changes the most activate output by the cost
+        if cost is positive it encourage this output
+        if cost is negative it discourage this output
+        :param input_list:
+        :param cost:
+        :return:
+        """
+        highest_activation_index = None
+        highest_activation = 0
 
-        self._OutputCosts(desired_outputs)
-        self._HiddenCosts()
-        self._InputCosts()
+        for index in range(len(self.output_nodes)):
+            output = self.output_nodes[index]
+            output: OutputNode
+            output_activation = output.GetActivation(save=True, recalculate=False)
+            if output_activation > highest_activation:
+                highest_activation = output_activation
+                highest_activation_index = index
 
-    def _OutputCosts(self, desired_outputs):
+        desired_output_list = [output.GetActivation(save=True, recalculate=False) for output in self.output_nodes]
+        desired_output_list[highest_activation_index] += cost
+
+        self.CalculateSlopeValues(input_list, desired_output_list)
+
+    def CalculateSlopeValues(self, input_list: list, desired_output_list: list):  # 0.034 once for (784, 10, 2, 16)
+        self.GetOutputs(input_list)
+
+        self._OutputSlopes(desired_output_list)
+        self._HiddenSlopes()
+        self._InputSlopes()
+
+    def _OutputSlopes(self, desired_output_list: list):
         output_index = 0
         for output in self.output_nodes:
             output: OutputNode
-            output_value_der = SigmoidDerivative(SigmoidDerivative(output.GetActivation(save=True, recalculate=False)))  # d(Output)/d(Value)
-            cost_output_der = (desired_outputs[output_index] - output.GetActivation(save=True, recalculate=False))  # d(Cost)/d(Output)
+            output_value_der = SigmoidDerivative(output.GetActivation(save=True, recalculate=False))  # d(Output)/d(Value)
+            cost_output_der = (desired_output_list[output_index] - output.GetActivation(save=True, recalculate=False))  # d(Cost)/d(Output)
+
             cost_value_der = cost_output_der * output_value_der
+
             output.cost_value_der = cost_value_der
             output.cost_bias_der = cost_value_der  # d(Value)/d(Bias) = 1
             output_index += 1
 
-    def _HiddenCosts(self):
+    def _HiddenSlopes(self):
         for node in reversed(self.hidden_nodes):
             node: HiddenNode
             if node.cost_value_der is None:
@@ -162,12 +189,15 @@ class NeuralNetwork:
 
                 value_output_1_der = link.factor
                 cost_output_1_der = link.output_node.cost_value_der * value_output_1_der  # d(Cost)/d(Output(-1))
-                output_1_value_1_der = SigmoidDerivative(SigmoidDerivative(node.GetActivation(save=True, recalculate=False)))  # d(Output(-1))/d(Value(-1))
+
+                output_1_value_1_der = SigmoidDerivative(node.GetActivation(save=True, recalculate=False))  # d(Output(-1))/d(Value(-1))
                 cost_value_1_der = cost_output_1_der * output_1_value_1_der
 
                 node.cost_value_der += cost_value_1_der
 
-                node.cost_bias_der += link.output_node.cost_value_der
+                node.cost_bias_der += cost_value_1_der  # d(Value)/d(Bias) = 1
+
+    def _InputSlopes(self):
         for node in self.input_nodes:
             for link in node.output_links:
                 link: NodeLink
@@ -179,13 +209,13 @@ class NeuralNetwork:
                 d_cost_d_factor *= link.output_node.cost_value_der
                 link.cost_factor_der += d_cost_d_factor
 
-    def MutateCosts(self, coefficient: float = 1):
+    def MutateSlopeValues(self, coefficient: float = 0.1):
         for node in self.node_dictionary.values():
             if isinstance(node, InputLinkedNode):
                 node: InputLinkedNode
                 for link in node.input_links:
-                    link.factor -= link.cost_factor_der * coefficient
-                node.bias -= node.cost_bias_der * coefficient
+                    link.factor += link.cost_factor_der * coefficient
+                node.bias += node.cost_bias_der * coefficient
         self.ResetCosts()
 
     def MutateRandom(self, variation: float):
