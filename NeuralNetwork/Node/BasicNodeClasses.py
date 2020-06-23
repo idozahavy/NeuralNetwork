@@ -3,9 +3,6 @@ import time
 from abc import ABCMeta, abstractmethod, ABC
 from random import random
 
-import sympy
-from sympy import Basic
-
 from NeuralNetwork.Node.NodeMath import Sigmoid
 
 
@@ -47,7 +44,6 @@ class Node(ABC):
     def __init__(self, activation=None):
         self.activation = activation
         self.name = None
-        self.sympy_activation = None
 
     @abstractmethod
     def GetActivation(self) -> float:

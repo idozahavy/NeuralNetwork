@@ -1,5 +1,3 @@
-import math
-
 from NeuralNetwork.Node.BasicNodeClasses import NodeName, InputLinkedNode, OutputLinkedNode
 
 
