@@ -3,9 +3,6 @@ import pickle
 import time
 from random import random
 
-import sympy
-from sympy import Symbol
-
 from NeuralNetwork.Node.BasicNodeClasses import NodeLink, InputLinkedNode, OutputLinkedNode, NodeName
 from NeuralNetwork.Node.HiddenNode import HiddenNode
 from NeuralNetwork.Node.InputNode import InputNode
@@ -170,32 +167,6 @@ class NeuralNetwork:
                 node.cost_value_der += cost_value_1_der
 
                 node.cost_bias_der += link.output_node.cost_value_der
-                pass
-
-            #   https://towardsdatascience.com/implementing-the-xor-gate-using-backpropagation-in-neural-networks-c1f255b4f20d
-            #   #Forward Propagation
-            # 	hidden_layer_activation = np.dot(inputs,hidden_weights)
-            # 	hidden_layer_activation += hidden_bias
-            # 	hidden_layer_output = sigmoid(hidden_layer_activation)
-            #
-            # 	output_layer_activation = np.dot(hidden_layer_output,output_weights)
-            # 	output_layer_activation += output_bias
-            # 	predicted_output = sigmoid(output_layer_activation)
-            #
-            # 	#Backpropagation
-            # 	error = expected_output - predicted_output
-            # 	d_predicted_output = error * sigmoid_derivative(predicted_output)
-            #
-            # 	error_hidden_layer = d_predicted_output.dot(output_weights.T)
-            # 	d_hidden_layer = error_hidden_layer * sigmoid_derivative(hidden_layer_output)
-            #
-            # 	#Updating Weights and Biases
-            # 	output_weights += hidden_layer_output.T.dot(d_predicted_output) * lr
-            # 	output_bias += np.sum(d_predicted_output,axis=0,keepdims=True) * lr
-            # 	hidden_weights += inputs.T.dot(d_hidden_layer) * lr
-            # 	hidden_bias += np.sum(d_hidden_layer,axis=0,keepdims=True) * lr
-
-    def _InputCosts(self):
         for node in self.input_nodes:
             for link in node.output_links:
                 link: NodeLink
