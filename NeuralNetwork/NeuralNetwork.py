@@ -1,4 +1,5 @@
 import copy
+import pickle
 import time
 from random import random
 
@@ -10,6 +11,13 @@ from NeuralNetwork.Node.HiddenNode import HiddenNode
 from NeuralNetwork.Node.InputNode import InputNode
 from NeuralNetwork.Node.NodeMath import SigmoidDerivative
 from NeuralNetwork.Node.OutputNode import OutputNode
+
+
+def LoadFromFile(file_path):
+    with open(file_path, mode='rb') as file:
+        obj = pickle.load(file)
+        file.close()
+        return obj
 
 
 class NeuralNetwork:
@@ -223,3 +231,9 @@ class NeuralNetwork:
                 node.cost_bias_der = None
                 for link in node.input_links:
                     link.cost_factor_der = None
+
+    def SaveToFile(self, file_path):
+        with open(file_path, mode='wb') as file:
+            pickle.dump(self, file, pickle.HIGHEST_PROTOCOL)
+            file.close()
+
