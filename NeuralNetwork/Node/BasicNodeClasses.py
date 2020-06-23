@@ -1,6 +1,10 @@
 import math
+import time
 from abc import ABCMeta, abstractmethod, ABC
 from random import random
+
+import sympy
+from sympy import Basic
 
 from NeuralNetwork.Node.NodeMath import Sigmoid
 
@@ -43,6 +47,7 @@ class Node(ABC):
     def __init__(self, activation=None):
         self.activation = activation
         self.name = None
+        self.sympy_activation = None
 
     @abstractmethod
     def GetActivation(self) -> float:
@@ -67,7 +72,10 @@ class InputLinkedNode(Node):
         if bias:
             self.bias = bias
         else:
-            self.bias = (2*random()-1)
+            # self.bias = (2*random()-1)
+            self.bias = 0
+        self.cost_value_der = None
+        self.cost_bias_der = None
 
     def GetActivation(self, save: bool = False, recalculate: bool = False):
         if not recalculate and math.isfinite(self.activation):
@@ -112,7 +120,7 @@ class OutputLinkedNode(Node):
         if "Input" not in str(self.name.node_type):
             print("fuck me - error 101")
 
-        if not math.isfinite(self.activation):
+        if isinstance(self.activation, float) and not math.isfinite(self.activation):
             raise Exception(f"OutputLinkedNode named '{self.name}' do not have any activation set")
         return self.activation
 
@@ -129,8 +137,8 @@ class OutputLinkedNode(Node):
 
 
 class NodeLink:
-    input_node: Node
-    output_node: Node
+    input_node: OutputLinkedNode
+    output_node: InputLinkedNode
     factor: float
 
     def __init__(self, input_node, output_node, factor: float = None):
@@ -140,10 +148,10 @@ class NodeLink:
             self.factor = factor
         else:
             self.factor = (2*random()-1)
+        self.cost_factor_der = None
 
     def GetLinkActivation(self, save: bool = False, recalculate: bool = False):
         if isinstance(self.input_node, InputLinkedNode):
             return self.factor * self.input_node.GetActivation(save=save, recalculate=recalculate)
         else:
             return self.factor * self.input_node.GetActivation()
-

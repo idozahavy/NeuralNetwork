@@ -1,5 +1,7 @@
 import math
 
+import sympy
+
 from NeuralNetwork.Node.BasicNodeClasses import NodeName, OutputLinkedNode
 
 

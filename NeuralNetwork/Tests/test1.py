@@ -1,9 +1,11 @@
 import time
+from random import random
 
 from NeuralNetwork.NeuralNetwork import NeuralNetwork
 from NeuralNetwork.Node.BasicNodeClasses import NodeLink
 from NeuralNetwork.Node.HiddenNode import HiddenNode
 from NeuralNetwork.Node.InputNode import InputNode
+from NeuralNetwork.Node.NodeMath import SigmoidDerivative
 from NeuralNetwork.Node.OutputNode import OutputNode
 
 input1 = InputNode(activation=0, node_number=0)
@@ -26,19 +28,36 @@ output1.input_links.append(output1_link1)
 #     a = output1.GetActivation(save=True)  # 1_000_000 times = 0.46 seconds
 # print(time.time()-timer)
 
-net = NeuralNetwork(input_count=100, output_count=100, hidden_layer_count=100, hidden_layer_nodes_count=100)
+net = NeuralNetwork(input_count=784, output_count=10, hidden_layer_count=2, hidden_layer_nodes_count=16)
 
-inputs = [i for i in range(784)]
+inputs = [0 for i in range(784)]
 
 timer = time.time()
 for _ in range(1):
-    # net = NeuralNetwork(input_count=100, output_count=100, hidden_layer_count=100, hidden_layer_nodes_count=100)
-    # print(net)
+    for _ in range(100):
+        # net = NeuralNetwork(input_count=100, output_count=100, hidden_layer_count=100, hidden_layer_nodes_count=100)
+        # print(net)
 
-    a = net.GetOutputs(inputs)
-    # print(a)
+        # a = net.GetOutputs(inputs)
+        # print(a)
 
-    h = net.GetHiddenNode(0, 1)  # 0
-    # print(h)
-print(time.time()-timer)  # 5.5 for all
+        # h = net.GetHiddenNode(0, 1)  # 0
+        # print(h)
 
+        net.CalculateCosts(inputs, [1 for i in range(10)])
+
+        # a = SigmoidDerivative(inputs.pop())
+        pass
+    net.MutateCosts()
+    print("Mutated")
+print(time.time()-timer)
+
+print()
+
+print(net.GetOutputs([-50 for _ in range(784)]))
+
+for _ in range(100):
+    a = int(random() * 2)
+    b = int(random() * 2)
+    xor = a ^ b
+    print(f"{[a, b]}, {[int(xor == 0), xor]}")
