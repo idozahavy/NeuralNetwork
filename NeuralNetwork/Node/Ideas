@@ -7,6 +7,9 @@ reacts to the new situation and so on
 >>>>>>>Reinforcement Learning
 making the neural better only by the cost at the end of the situation
 scoring the outcome of the neural decisions to make the cost efficient
+Quality = immediate reward + future reward*(some number below 1) + after future reward.....
+checks the reward for each output the neural network can select, and reward by it, and by future rewards
+random exploratory, random chance to try other actions, at this random only increase not decrease.
 
 >>>>>>>Gene expression programming - https://en.wikipedia.org/wiki/Gene_expression_programming
 
@@ -15,6 +18,10 @@ scoring the outcome of the neural decisions to make the cost efficient
 >>>Particle swarm optimization - https://en.wikipedia.org/wiki/Particle_swarm_optimization
 
 >>Long short-term memory - https://en.wikipedia.org/wiki/Long_short-term_memory#Idea
+can attach an extra input that takes the previous outputs
 
 > Mutation Shake - if experiencing the vanishing gradient problem,
 make the values shake a bit and then backpropagate again
+
+>>>>>>Neural Network Attachments , attach two or more neural networks together,
+ones output will be the others input
