@@ -1,6 +1,6 @@
 import copy
+import _pickle
 import pickle
-import time
 from random import random
 
 from NeuralNetwork.Node.BasicNodeClasses import NodeLink, InputLinkedNode, OutputLinkedNode, NodeName
@@ -11,10 +11,13 @@ from NeuralNetwork.Node.OutputNode import OutputNode
 
 
 def LoadFromFile(file_path):
-    with open(file_path, mode='rb') as file:
-        obj = pickle.load(file)
-        file.close()
-        return obj
+    try:
+        with open(file_path, mode='rb') as file:
+            obj = _pickle.load(file)
+            file.close()
+            return obj
+    except Exception:
+        return None
 
 
 class NeuralNetwork:
@@ -22,6 +25,7 @@ class NeuralNetwork:
     output_nodes: list
     hidden_nodes: list
     node_dictionary: dict
+    has_slopes: bool
 
     def __init__(self, input_count: int, output_count: int, hidden_layer_count: int,
                  hidden_layer_nodes_count: int):  # 0.127 secs once for (784, 10, 2, 16)
@@ -30,6 +34,7 @@ class NeuralNetwork:
         self.output_nodes = []
         self.hidden_nodes = []
         self.node_dictionary = {}
+        self.has_slopes = False
 
         for index in range(input_count):
             new_input_node = InputNode(activation=None, node_number=index)
@@ -154,6 +159,7 @@ class NeuralNetwork:
         self._OutputSlopes(desired_output_list)
         self._HiddenSlopes()
         self._InputSlopes()
+        self.has_slopes = True
 
     def _OutputSlopes(self, desired_output_list: list):
         output_index = 0
@@ -216,7 +222,7 @@ class NeuralNetwork:
                 for link in node.input_links:
                     link.factor += link.cost_factor_der * coefficient
                 node.bias += node.cost_bias_der * coefficient
-        self.ResetCosts()
+        self.ResetSlopeValues()
 
     def MutateRandom(self, variation: float):
         for node in self.hidden_nodes and self.output_nodes:
@@ -246,7 +252,7 @@ class NeuralNetwork:
         # Evolutionary Algorithm
         pass
 
-    def ResetCosts(self):
+    def ResetSlopeValues(self):
         for node in self.node_dictionary.values():
             if isinstance(node, InputLinkedNode):
                 node: InputLinkedNode
@@ -254,9 +260,10 @@ class NeuralNetwork:
                 node.cost_bias_der = None
                 for link in node.input_links:
                     link.cost_factor_der = None
+        self.has_slopes = False
 
     def SaveToFile(self, file_path):
         with open(file_path, mode='wb') as file:
-            pickle.dump(self, file, pickle.HIGHEST_PROTOCOL)
+            _pickle.dump(self, file, -1)
             file.close()
 
